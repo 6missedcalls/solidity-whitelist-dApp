@@ -1,0 +1,86 @@
+<html>
+
+<head>
+  <link rel='shortcut icon' type='image/x-icon' href='/favicon.ico' />
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
+    crossorigin="anonymous">
+
+  <title>Whitelist Demo</title>
+  <style>
+    body {
+    background-color: black;
+    text-align: center;
+    color: white;
+    font-family: Arial, Helvetica, sans-serif;
+    }
+  </style>
+  <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+    crossorigin="anonymous"></script>
+</head>
+<body>
+    <script charset="utf-8" src="https://cdn.ethers.io/scripts/ethers-v4.min.js" type="text/javascript"></script>
+
+    <div class="container">
+        <div class="form-group">
+            <h1>This is my Whitelist Demo!</h1>
+            <p> Here we can check or add an address to the whitelist</p>
+            <div class="row">
+            <div class="col offset-md-4 col-md-4">
+                <label for="addressInput">Input Address</label>
+                <input type="text" class="form-control" id="addressInput">
+            </div>
+            </div>
+            <div class="row mt-2">
+            <div class="col offset-md-4 col-md-2">
+                <button class="btn btn-primary btn-block" onclick="verifyUser()"> verifyUser </button>
+            </div>
+            <div class="col col-md-2">
+                <button class="btn btn-light btn-block" onclick="addUser()"> addUser </button>
+            </div>
+            </div>
+        </div>
+        <footer>
+            <p>
+                Made with <span style="color: red;">&hearts;</span> by <a href="https://www.twitter.com/6missedcalls">0x0</a>
+                <span>
+                     | <a href="https://twitter.com/LearnWeb3Dao">LearnWeb3Dao</a>
+                </span>
+            </p>
+        </footer>
+    </div>
+
+    <script>
+    window.ethereum.enable()
+    const provider = new ethers.providers.Web3Provider(web3.currentProvider);
+
+    const contractAddress = "0xBaf7beE75ed72dcDBe663176C06dc75156c31fF1";
+    let whitelistABI = [{"inputs":[],"stateMutability":"nonpayable","type":"constructor"},{"inputs":[{"internalType":"address","name":"_addressToWhitelist","type":"address"}],"name":"addUser","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"_whitelistedAddress","type":"address"}],"name":"verifyUser","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"}]
+    provider.listAccounts().then(accounts => {
+        signer = provider.getSigner(accounts[0]);
+        whitelistContract = new ethers.Contract(contractAddress, whitelistABI, signer);
+    })
+    async function verifyUser() {
+        address = document.getElementById("addressInput").value;
+        getverificationPromise = whitelistContract.verifyUser(address);
+        getverificationPromise.then(function(result) {
+            console.log(result);
+            if (result) {
+                alert("Address is whitelisted!");
+            } else {
+                alert("Address is not whitelisted!");
+            }
+        })
+    }
+    async function addUser() {
+        address = $("#addressInput").val();
+        if (address.length != 42) {
+            alert("Invalid address");
+            return;
+        } else {
+            const result = await whitelistContract.addUser(address);
+            alert(`${address} added to whitelist!`);
+        }
+    }
+    </script>
+</body>
+</html>
